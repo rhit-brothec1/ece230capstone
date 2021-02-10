@@ -1,5 +1,5 @@
 /*
- * Author:      Cooper Brotherton and TODO
+ * Author:      Cooper Brotherton and Jesus Capo
  * Date:        February 10, 2021
  * Libraries:   GPIO, Timer32, Timer A, ADC14, TODO from DriverLib
  */
