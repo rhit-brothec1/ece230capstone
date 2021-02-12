@@ -11,7 +11,7 @@
 void Switch_init(void)
 {
     // set S1 and S2 pins as input using GPIO driver functions
-    GPIO_setAsInputPinWithPullUpResistor(SWITCH_PORT, SWITCH_PIN);
+    GPIO_setAsInputPinWithPullUpResistor(SWITCH_PORT, SWITCH_PINS);
 }
 
 extern bool Switch_pressed(int pin)

@@ -1,6 +1,6 @@
 /*
  * Author:      Cooper Brotherton and Jesus Capo
- * Date:        February 10, 2021
+ * Date:        February 12, 2021
  * Libraries:   GPIO, Timer32, Timer A, ADC14, TODO from DriverLib
  */
 /******************************************************************************
@@ -32,8 +32,23 @@
 #include "Switches.h"
 #include "LED.h"
 #include "delays.h"
+#include "Timer.h"
 
-#define NUM_OF_TASKS    7
+#define NUM_OF_TASKS                                                7
+
+#define KEYPAD_PORT                                                 GPIO_PORT_P4
+#define KEYPAD_INPUT_PINS                                           0x000F
+#define KEYPAD_OUTPUT_PINS                                          0x00F0
+
+#define SERVO_PORT                                                  GPIO_PORT_P2
+#define SERVO_PIN                                                   GPIO_PIN7
+#define SERVO_PERIOD                                                37750
+#define MIN_ANGLE                                                   700
+#define MIDDLE_ANGLE                                                2176
+#define MAX_ANGLE                                                   3652
+
+// TODO
+#define BEEP                                                        0
 
 typedef enum _tasks
 {
@@ -46,9 +61,8 @@ static volatile Tasks taskList[NUM_OF_TASKS];
 
 Tasks currentTask;
 
-void init_ADC(void)
+void ADC_init(void)
 {
-    // ADC initialization
     // Enabling the FPU for floating point operation
     FPU_enableModule();
     FPU_enableLazyStacking();
@@ -57,27 +71,49 @@ void init_ADC(void)
     ADC14_enableModule();
     ADC14_initModule(ADC_CLOCKSOURCE_MCLK, ADC_PREDIVIDER_1, ADC_DIVIDER_1, 0);
 
-    // TODO change
     // Configuring GPIOs (5.0, 5.1, 5.2; A5, A4, A3)
     GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5,
     GPIO_PIN0 | GPIO_PIN1 | GPIO_PIN2,
                                                GPIO_TERTIARY_MODULE_FUNCTION);
 
     // Configuring ADC
-    ADC14_configureMultiSequenceMode(ADC_MEM14, ADC_MEM15, false);
-    ADC14_configureConversionMemory(ADC_MEM14,
+    ADC14_configureMultiSequenceMode(ADC_MEM3, ADC_MEM5, false);
+    ADC14_configureConversionMemory(ADC_MEM3,
     ADC_VREFPOS_AVCC_VREFNEG_VSS,
-                                    ADC_INPUT_A14, false);
-    ADC14_configureConversionMemory(ADC_MEM15,
+                                    ADC_INPUT_A3, false);
+    ADC14_configureConversionMemory(ADC_MEM4,
     ADC_VREFPOS_AVCC_VREFNEG_VSS,
-                                    ADC_INPUT_A15, false);
+                                    ADC_INPUT_A4, false);
+    ADC14_configureConversionMemory(ADC_MEM5,
+    ADC_VREFPOS_AVCC_VREFNEG_VSS,
+                                    ADC_INPUT_A5, false);
     ADC14_enableSampleTimer(ADC_MANUAL_ITERATION);
     ADC14_setResolution(ADC_14BIT);
     ADC14_enableConversion();
     ADC14_toggleConversionTrigger();
-    ADC14_enableInterrupt(ADC_INT14);
-    ADC14_enableInterrupt(ADC_INT15);
+    ADC14_enableInterrupt(ADC_INT3);
+    ADC14_enableInterrupt(ADC_INT4);
+    ADC14_enableInterrupt(ADC_INT5);
     Interrupt_enableInterrupt(INT_ADC14);
+}
+
+void Keypad_init(void)
+{
+    GPIO_setAsInputPinWithPullUpResistor(KEYPAD_PORT, KEYPAD_INPUT_PINS);
+    GPIO_setAsOutputPin(KEYPAD_PORT, KEYPAD_OUTPUT_PINS);
+}
+
+Timer_A_PWMConfig servo_PWMConfig = {
+TIMER_A_CLOCKSOURCE_SMCLK,
+                                      TIMER_A_CLOCKSOURCE_DIVIDER_2,
+                                      SERVO_PERIOD,
+                                      TIMER_A_CAPTURECOMPARE_REGISTER_1,
+                                      TIMER_A_OUTPUTMODE_RESET_SET,
+                                      MIDDLE_ANGLE };
+
+void Servo_init(void)
+{
+    Timer_A_generatePWM(TIMER_A1_BASE, &servo_PWMConfig);
 }
 
 /*!
@@ -94,12 +130,21 @@ void setup(void)
 
     Switch_init();
     LED_init();
+    ADC_init();
+    Keypad_init();
+    Servo_init();
+    Timer_init();
 
-    // Timer32 in One-shot mode
-    Timer32_initModule(TIMER32_0_BASE, TIMER32_PRESCALER_1, TIMER32_32BIT,
-    TIMER32_PERIODIC_MODE);
-    Timer32_setCount(TIMER32_0_BASE, CS_getMCLK());
-    Timer32_startTimer(TIMER32_0_BASE, true);
+    const uint8_t port_mapping[] = {
+    //Port P2: none, none, none, none, none, none, buzzer, servo
+            PMAP_NONE,
+            PMAP_NONE,
+            PMAP_NONE, PMAP_NONE, PMAP_NONE, PMAP_NONE,
+            PMAP_TA0CCR3A,
+            PMAP_TA1CCR1A };
+
+    PMAP_configurePorts((const uint8_t*) port_mapping, PMAP_P2MAP, 1,
+    PMAP_DISABLE_RECONFIGURATION);
 
     // LCD initialization
     configLCD(GPIO_PORT_P3, GPIO_PIN3, GPIO_PORT_P3, GPIO_PIN2, GPIO_PORT_P6);
@@ -142,12 +187,16 @@ int main(void)
 {
     setup();
 
-// TODO welcome to game
+    // TODO welcome to game
+
+    // TODO difficulty
 
     generateRandomOrder();
 
-// TODO game
+    // TODO game
     currentTask = taskList[taskIndex];
+    Timer32_setCount(TIMER32_0_BASE, 60*CS_getMCLK());
+    Timer32_startTimer(TIMER32_0_BASE, true);
 
     while (1)
     {
@@ -198,4 +247,42 @@ void ADC14_IRQHandler(void)
             ADC14_toggleConversionTrigger();
         }
     }
+}
+
+/*!
+ * \brief This function handles the interrupt of TA2 CCR0
+ *
+ * This function turns makes the speaker beep and toggles the LED
+ *
+ *\return None
+ */
+void TA2_0_IRQHandler(void)
+{
+    Timer_A_clearCaptureCompareInterrupt(TIMER_A2_BASE,
+    TIMER_A_CAPTURECOMPARE_REGISTER_0);
+    Timer_A_setCompareValue(TIMER_A0_BASE,
+    TIMER_A_CAPTURECOMPARE_REGISTER_3,
+                            BEEP);
+    GPIO_toggleOutputOnPin(BLINK_PORT, BLINK_PIN);
+}
+
+/*!
+ * \brief This function handles the interrupt of TA2 CCRN
+ *
+ * This function turns off the speaker, togles the LED, and adjusts the frequency
+ * based on the time remaining.
+ *
+ * \return None
+ */
+void TA2_N_IRQHandler(void)
+{
+    Timer_A_clearInterruptFlag(TIMER_A2_BASE);
+    Timer_A_setCompareValue(TIMER_A0_BASE,
+    TIMER_A_CAPTURECOMPARE_REGISTER_3,
+                            0);
+    // TODO adjust this value to not overflow
+    Timer_A_setCompareValue(TIMER_A2_BASE,
+    TIMER_A_CAPTURECOMPARE_REGISTER_0,
+                            TIMER32_1->VALUE/3840);
+    GPIO_toggleOutputOnPin(BLINK_PORT, BLINK_PIN);
 }

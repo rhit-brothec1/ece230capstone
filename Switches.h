@@ -2,6 +2,7 @@
  * Switches.h
  *
  *  Created on: Dec 18, 2020
+ *  Edited on: Feb 12, 2021
  *      Author: Cooper Brotherton
  */
 
@@ -16,7 +17,7 @@ extern "C" {
 #include <ti/devices/msp432p4xx/driverlib/driverlib.h>
 
 #define SWITCH_PORT                                                 GPIO_PORT_P1
-#define SWITCH_PIN                                                  0x0012
+#define SWITCH_PINS                                                 0x0032
 
 /*!
  * \brief This function configures the switches as inputs
@@ -37,6 +38,7 @@ extern void Switch_init(void);
  *          Valid values are:
  *          - \b 1 (P1.1 = S1)
  *          - \b 4 (P1.4 = S2)
+ *          - \b 5 (P1.5 = Button)
  *
  * \return true if the switch is pressed, false otherwise
  */
