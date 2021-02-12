@@ -55,6 +55,11 @@ typedef enum _tasks
     Password, Lights, Temp, Direction, Power, Reaction, Binary
 } Tasks;
 
+typedef enum _diff
+{
+    Easy, Medium, Hard
+} Difficulty;
+
 static volatile uint16_t digitalValue;
 static volatile uint16_t taskIndex;
 static volatile Tasks taskList[NUM_OF_TASKS];
@@ -77,7 +82,7 @@ void ADC_init(void)
                                                GPIO_TERTIARY_MODULE_FUNCTION);
 
     // Configuring ADC
-    ADC14_configureMultiSequenceMode(ADC_MEM3, ADC_MEM5, false);
+    ADC14_configureMultiSequenceMode(ADC_MEM3, ADC_MEM5, true);
     ADC14_configureConversionMemory(ADC_MEM3,
     ADC_VREFPOS_AVCC_VREFNEG_VSS,
                                     ADC_INPUT_A3, false);
@@ -154,6 +159,43 @@ void setup(void)
     Interrupt_enableMaster();
 }
 
+Difficulty setDifficulty(void)
+{
+    int select = 0;
+    while (!Switch_pressed(1))
+        ;
+    commandInstruction(RETURN_HOME_MASK, false);
+    printString("Easy            ", 16);
+    while (!Switch_pressed(4))
+    {
+        if (Switch_pressed(1))
+        {
+            // Display new difficulty and rotate
+            select = (select + 1) % 3;
+            commandInstruction(RETURN_HOME_MASK, false);
+            switch (select)
+            {
+            case 0:
+                printString("Easy  ", 6);
+                break;
+            case 1:
+                printString("Medium", 6);
+                break;
+            case 2:
+                printString("Hard  ", 6);
+                break;
+            default:
+                printString("Easy  ", 6);
+            }
+
+        }
+        while (Switch_pressed(1))
+            ;
+    }
+
+    return (Difficulty) select;
+}
+
 /*!
  * \brief This function puts the tasks in a random order
  *
@@ -166,7 +208,7 @@ void setup(void)
 void generateRandomOrder(void)
 {
     taskIndex = 0;
-    // array to keep track of which Tasks have been picked
+// array to keep track of which Tasks have been picked
     bool picked[NUM_OF_TASKS] = { false };
     int i;
     for (i = 0; i < NUM_OF_TASKS; i++)
@@ -187,15 +229,22 @@ int main(void)
 {
     setup();
 
-    // TODO welcome to game
+    printString("Welcome to\nEngineering Sim!", 27);
+    delayMilliSec(5000);
+    commandInstruction(CLEAR_DISPLAY_MASK, false);
+    commandInstruction(RETURN_HOME_MASK, false);
 
-    // TODO difficulty
+    printString("Set difficulty:\nS1:select S2:set", 32);
+//    printString("Set difficulty:\nS1:select", 25);
+
+    Difficulty difficulty = setDifficulty();
+// TODO difficulty
 
     generateRandomOrder();
 
-    // TODO game
+// TODO game
     currentTask = taskList[taskIndex];
-    Timer32_setCount(TIMER32_0_BASE, 60*CS_getMCLK());
+    Timer32_setCount(TIMER32_0_BASE, 60 * CS_getMCLK());
     Timer32_startTimer(TIMER32_0_BASE, true);
 
     while (1)
@@ -208,7 +257,7 @@ void ADC14_IRQHandler(void)
 {
     uint64_t status = ADC14_getEnabledInterruptStatus();
     ADC14_clearInterruptFlag(status);
-    // Potentiometer
+// Potentiometer
     if (ADC_INT3 & status)
     {
         // if direction or power
@@ -221,7 +270,7 @@ void ADC14_IRQHandler(void)
             ADC14_toggleConversionTrigger();
         }
     }
-    // Thermistor
+// Thermistor
     if (ADC_INT4 & status)
     {
         if (currentTask == Temp)
@@ -234,7 +283,7 @@ void ADC14_IRQHandler(void)
             ADC14_toggleConversionTrigger();
         }
     }
-    // Photoresistor
+// Photoresistor
     if (ADC_INT5 & status)
     {
         if (currentTask == Lights)
@@ -280,9 +329,9 @@ void TA2_N_IRQHandler(void)
     Timer_A_setCompareValue(TIMER_A0_BASE,
     TIMER_A_CAPTURECOMPARE_REGISTER_3,
                             0);
-    // TODO adjust this value to not overflow
+// TODO adjust this value to not overflow
     Timer_A_setCompareValue(TIMER_A2_BASE,
     TIMER_A_CAPTURECOMPARE_REGISTER_0,
-                            TIMER32_1->VALUE/3840);
+                            TIMER32_1->VALUE / 3840);
     GPIO_toggleOutputOnPin(BLINK_PORT, BLINK_PIN);
 }

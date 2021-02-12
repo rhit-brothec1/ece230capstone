@@ -153,6 +153,11 @@ void printString(char *chars, int length)
     int i;
     for (i = 0; i < length; i++)
     {
+        if (chars[i] == '\n')
+        {
+            commandInstruction(SET_CURSOR_MASK | LINE2_OFFSET, false);
+            continue;
+        }
         if (chars[i] != 0)
         {
             printChar(chars[i]);
