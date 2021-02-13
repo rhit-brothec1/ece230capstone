@@ -47,8 +47,7 @@
 #define MIDDLE_ANGLE                                                2176
 #define MAX_ANGLE                                                   3652
 
-// TODO
-#define BEEP                                                        0
+#define BEEP                                                        1000
 
 typedef enum _tasks
 {
@@ -235,10 +234,9 @@ int main(void)
     commandInstruction(RETURN_HOME_MASK, false);
 
     printString("Set difficulty:\nS1:select S2:set", 32);
-//    printString("Set difficulty:\nS1:select", 25);
-
     Difficulty difficulty = setDifficulty();
-// TODO difficulty
+    commandInstruction(RETURN_HOME_MASK, false);
+    commandInstruction(CLEAR_DISPLAY_MASK, false);
 
     generateRandomOrder();
 
@@ -246,6 +244,8 @@ int main(void)
     currentTask = taskList[taskIndex];
     Timer32_setCount(TIMER32_0_BASE, 60 * CS_getMCLK());
     Timer32_startTimer(TIMER32_0_BASE, true);
+    Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_UP_MODE);
+    Timer_A_startCounter(TIMER_A2_BASE, TIMER_A_UPDOWN_MODE);
 
     while (1)
     {
@@ -298,6 +298,18 @@ void ADC14_IRQHandler(void)
     }
 }
 
+void T32_INT1_IRQHandler(void)
+{
+    Timer32_clearInterruptFlag(TIMER32_0_BASE);
+    commandInstruction(CLEAR_DISPLAY_MASK, false);
+    commandInstruction(RETURN_HOME_MASK, false);
+    printString("Game over!", 10);
+    GPIO_setOutputHighOnPin(BLINK_PORT, BLINK_PIN);
+//    while (1)
+//        ;
+//    Timer32_setCount(TIMER32_0_BASE, 60 * CS_getMCLK());
+}
+
 /*!
  * \brief This function handles the interrupt of TA2 CCR0
  *
@@ -312,7 +324,7 @@ void TA2_0_IRQHandler(void)
     Timer_A_setCompareValue(TIMER_A0_BASE,
     TIMER_A_CAPTURECOMPARE_REGISTER_3,
                             BEEP);
-    GPIO_toggleOutputOnPin(BLINK_PORT, BLINK_PIN);
+    GPIO_setOutputLowOnPin(BLINK_PORT, BLINK_PIN);
 }
 
 /*!
@@ -329,9 +341,8 @@ void TA2_N_IRQHandler(void)
     Timer_A_setCompareValue(TIMER_A0_BASE,
     TIMER_A_CAPTURECOMPARE_REGISTER_3,
                             0);
-// TODO adjust this value to not overflow
     Timer_A_setCompareValue(TIMER_A2_BASE,
     TIMER_A_CAPTURECOMPARE_REGISTER_0,
                             TIMER32_1->VALUE / 3840);
-    GPIO_toggleOutputOnPin(BLINK_PORT, BLINK_PIN);
+    GPIO_setOutputHighOnPin(BLINK_PORT, BLINK_PIN);
 }
