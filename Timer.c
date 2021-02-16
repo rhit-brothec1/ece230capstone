@@ -16,6 +16,10 @@ void Blink_LED_init(void)
 void Timer_init(void)
 {
     Blink_LED_init();
+    GPIO_setAsPeripheralModuleFunctionOutputPin(
+                GPIO_PORT_P2,
+                GPIO_PIN6,
+                GPIO_PRIMARY_MODULE_FUNCTION);
     Timer32_initModule(TIMER32_0_BASE, TIMER32_PRESCALER_1, TIMER32_32BIT,
     TIMER32_PERIODIC_MODE);
     Timer32_enableInterrupt(TIMER32_0_BASE);
@@ -25,7 +29,7 @@ void Timer_init(void)
     TIMER_A_CLOCKSOURCE_SMCLK,                          // SMCLK Clock Source
             TIMER_A_CLOCKSOURCE_DIVIDER_1,              // SMCLK/1 = 3MHz
             0,                                          // Tick period
-            TIMER_A_CAPTURECOMPARE_REGISTER_3,          // Use CCR3
+            TIMER_A_CAPTURECOMPARE_REGISTER_0,          // Use CCR0
             TIMER_A_OUTPUTMODE_TOGGLE,                  // Toggle output bit
             0                                           // Duty Cycle
             };

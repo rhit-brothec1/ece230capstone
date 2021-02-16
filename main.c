@@ -105,6 +105,7 @@ void Keypad_init(void)
 {
     GPIO_setAsInputPinWithPullUpResistor(KEYPAD_PORT, KEYPAD_INPUT_PINS);
     GPIO_setAsOutputPin(KEYPAD_PORT, KEYPAD_OUTPUT_PINS);
+    GPIO_setOutputHighOnPin(KEYPAD_PORT, KEYPAD_OUTPUT_PINS);
 }
 
 Timer_A_PWMConfig servo_PWMConfig = {
@@ -117,6 +118,9 @@ TIMER_A_CLOCKSOURCE_SMCLK,
 
 void Servo_init(void)
 {
+    GPIO_setAsPeripheralModuleFunctionOutputPin(SERVO_PORT,
+                                                    SERVO_PIN,
+                                                    GPIO_PRIMARY_MODULE_FUNCTION);
     Timer_A_generatePWM(TIMER_A1_BASE, &servo_PWMConfig);
 }
 
@@ -141,10 +145,8 @@ void setup(void)
 
     const uint8_t port_mapping[] = {
     //Port P2: none, none, none, none, none, none, buzzer, servo
-            PMAP_NONE,
-            PMAP_NONE,
-            PMAP_NONE, PMAP_NONE, PMAP_NONE, PMAP_NONE,
-            PMAP_TA0CCR3A,
+            PMAP_NONE, PMAP_NONE, PMAP_NONE, PMAP_NONE, PMAP_NONE, PMAP_NONE,
+            PMAP_TA0CCR0A,
             PMAP_TA1CCR1A };
 
     PMAP_configurePorts((const uint8_t*) port_mapping, PMAP_P2MAP, 1,
@@ -227,6 +229,18 @@ void generateRandomOrder(void)
 int main(void)
 {
     setup();
+
+//    while (1)
+//    {
+//        GPIO_setOutputLowOnPin(KEYPAD_PORT, GPIO_PIN4);
+//        GPIO_setOutputHighOnPin(KEYPAD_PORT, GPIO_PIN4);
+//        GPIO_setOutputLowOnPin(KEYPAD_PORT, GPIO_PIN5);
+//        GPIO_setOutputHighOnPin(KEYPAD_PORT, GPIO_PIN5);
+//        GPIO_setOutputLowOnPin(KEYPAD_PORT, GPIO_PIN6);
+//        GPIO_setOutputHighOnPin(KEYPAD_PORT, GPIO_PIN6);
+//        GPIO_setOutputLowOnPin(KEYPAD_PORT, GPIO_PIN7);
+//        GPIO_setOutputHighOnPin(KEYPAD_PORT, GPIO_PIN7);
+//    }
 
     printString("Welcome to\nEngineering Sim!", 27);
     delayMilliSec(5000);
@@ -322,9 +336,9 @@ void TA2_0_IRQHandler(void)
     Timer_A_clearCaptureCompareInterrupt(TIMER_A2_BASE,
     TIMER_A_CAPTURECOMPARE_REGISTER_0);
     Timer_A_setCompareValue(TIMER_A0_BASE,
-    TIMER_A_CAPTURECOMPARE_REGISTER_3,
+    TIMER_A_CAPTURECOMPARE_REGISTER_0,
                             BEEP);
-    GPIO_setOutputLowOnPin(BLINK_PORT, BLINK_PIN);
+    GPIO_setOutputHighOnPin(BLINK_PORT, BLINK_PIN);
 }
 
 /*!
@@ -339,10 +353,10 @@ void TA2_N_IRQHandler(void)
 {
     Timer_A_clearInterruptFlag(TIMER_A2_BASE);
     Timer_A_setCompareValue(TIMER_A0_BASE,
-    TIMER_A_CAPTURECOMPARE_REGISTER_3,
+    TIMER_A_CAPTURECOMPARE_REGISTER_0,
                             0);
     Timer_A_setCompareValue(TIMER_A2_BASE,
     TIMER_A_CAPTURECOMPARE_REGISTER_0,
                             TIMER32_1->VALUE / 3840);
-    GPIO_setOutputHighOnPin(BLINK_PORT, BLINK_PIN);
+    GPIO_setOutputLowOnPin(BLINK_PORT, BLINK_PIN);
 }
