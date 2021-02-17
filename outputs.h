@@ -1,13 +1,12 @@
 /*
- * rgbLED.h
+ * outputs.h
  *
- *  Created on: Dec 18, 2020
- *  Edited on:  Feb 10, 2021
- *      Author: Cooper Brotherton
+ *  Created on: Feb 16, 2021
+ *      Author: Cooper Brotherton and Jesus Capo
  */
 
-#ifndef LED_H_
-#define LED_H_
+#ifndef OUTPUTS_H_
+#define OUTPUTS_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,10 +20,21 @@ extern "C" {
 #define EXTERNAL_LED_PORT                                           GPIO_PORT_P3
 #define EXTERNAL_LED_ALL_PINS                                       0x00E1
 
+#define SERVO_PORT                                                  GPIO_PORT_P2
+#define SERVO_PIN                                                   GPIO_PIN7
+#define SERVO_PERIOD                                                37750
+#define MIN_ANGLE                                                   700
+#define MIDDLE_ANGLE                                                2176
+#define MAX_ANGLE                                                   3652
+
 /*!
+ * \brief This function initializes all of the outputs for the system
+ *
  * TODO
+ *
+ * \return None
  */
-extern void LED_init(void);
+extern void outputs_init(void);
 
 /*!
  * \brief This function toggles the LED at the given pin
@@ -66,14 +76,15 @@ extern void RGBLED_turnOnOnlyPin(int pin);
  *  hexadecimal input. For example, a hexadecimal value of A (1010) will turn on
  *  LEDs 4 and 2.
  *
- *  \param hex is the hexadecimal value the represents which LEDs are on.
+ *  \param value is the decimal value the represents which LEDs are on.
+ *          Valid values range from 0 to 13.
  *
  * \return None
  */
-extern void External_LED_turnOnHex(int hex);
+extern void External_LED_turnOnHex(int value);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* LED_H_ */
+#endif /* OUTPUTS_H_ */

@@ -1,13 +1,12 @@
 /*
- * Switches.h
+ * inputs.h
  *
- *  Created on: Dec 18, 2020
- *  Edited on: Feb 12, 2021
- *      Author: Cooper Brotherton
+ *  Created on: Feb 16, 2021
+ *      Author: Cooper Brotherton and Jesus Capo
  */
 
-#ifndef SWITCHES_H_
-#define SWITCHES_H_
+#ifndef INPUTS_H_
+#define INPUTS_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,14 +18,18 @@ extern "C" {
 #define SWITCH_PORT                                                 GPIO_PORT_P1
 #define SWITCH_PINS                                                 0x0032
 
+#define KEYPAD_PORT                                                 GPIO_PORT_P4
+#define KEYPAD_INPUT_PINS                                           0x00F0
+#define KEYPAD_OUTPUT_PINS                                          0x000F
+
 /*!
- * \brief This function configures the switches as inputs
+ * \brief This function initializes the inputs for the system
  *
- * This function configures P1.1 and P1.4 as input pins with pull-up resistors
+ * TODO
  *
  * \return None
  */
-extern void Switch_init(void);
+extern void inputs_init(void);
 
 /*!
  * \brief This function determines whether a switch is pressed
@@ -44,8 +47,17 @@ extern void Switch_init(void);
  */
 extern bool Switch_pressed(int pin);
 
+/*!
+ * \brief This function retrieves input from the keypad
+ *
+ * TODO
+ *
+ * \return char corresponding to the keypad input
+ */
+extern char Keypad_input(void);
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SWITCHES_H_ */
+#endif /* INPUTS_H_ */

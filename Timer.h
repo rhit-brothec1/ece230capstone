@@ -11,6 +11,8 @@
 #define BLINK_PORT                                                  GPIO_PORT_P1
 #define BLINK_PIN                                                   GPIO_PIN0
 
+#define BEEP                                                        1000
+
 /*!
  * \brief TODO
  */

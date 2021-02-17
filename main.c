@@ -22,6 +22,7 @@
  *******************************************************************************/
 /* DriverLib Includes */
 #include <ti/devices/msp432p4xx/driverlib/driverlib.h>
+#include <stdlib.h>
 
 /* Standard Includes */
 #include <stdint.h>
@@ -29,25 +30,12 @@
 
 // Other includes
 #include "lcd.h"
-#include "Switches.h"
-#include "LED.h"
+#include "inputs.h"
+#include "outputs.h"
 #include "delays.h"
 #include "Timer.h"
 
 #define NUM_OF_TASKS                                                7
-
-#define KEYPAD_PORT                                                 GPIO_PORT_P4
-#define KEYPAD_INPUT_PINS                                           0x000F
-#define KEYPAD_OUTPUT_PINS                                          0x00F0
-
-#define SERVO_PORT                                                  GPIO_PORT_P2
-#define SERVO_PIN                                                   GPIO_PIN7
-#define SERVO_PERIOD                                                37750
-#define MIN_ANGLE                                                   700
-#define MIDDLE_ANGLE                                                2176
-#define MAX_ANGLE                                                   3652
-
-#define BEEP                                                        1000
 
 typedef enum _tasks
 {
@@ -59,12 +47,19 @@ typedef enum _diff
     Easy, Medium, Hard
 } Difficulty;
 
-static volatile uint16_t digitalValue;
+static volatile int16_t digitalValue;
 static volatile uint16_t taskIndex;
 static volatile Tasks taskList[NUM_OF_TASKS];
 
 Tasks currentTask;
 
+/*!
+ * \brief This function initializes the ADC14
+ *
+ * TODO
+ *
+ * \return None
+ */
 void ADC_init(void)
 {
     // Enabling the FPU for floating point operation
@@ -101,29 +96,6 @@ void ADC_init(void)
     Interrupt_enableInterrupt(INT_ADC14);
 }
 
-void Keypad_init(void)
-{
-    GPIO_setAsInputPinWithPullUpResistor(KEYPAD_PORT, KEYPAD_INPUT_PINS);
-    GPIO_setAsOutputPin(KEYPAD_PORT, KEYPAD_OUTPUT_PINS);
-    GPIO_setOutputHighOnPin(KEYPAD_PORT, KEYPAD_OUTPUT_PINS);
-}
-
-Timer_A_PWMConfig servo_PWMConfig = {
-TIMER_A_CLOCKSOURCE_SMCLK,
-                                      TIMER_A_CLOCKSOURCE_DIVIDER_2,
-                                      SERVO_PERIOD,
-                                      TIMER_A_CAPTURECOMPARE_REGISTER_1,
-                                      TIMER_A_OUTPUTMODE_RESET_SET,
-                                      MIDDLE_ANGLE };
-
-void Servo_init(void)
-{
-    GPIO_setAsPeripheralModuleFunctionOutputPin(SERVO_PORT,
-                                                    SERVO_PIN,
-                                                    GPIO_PRIMARY_MODULE_FUNCTION);
-    Timer_A_generatePWM(TIMER_A1_BASE, &servo_PWMConfig);
-}
-
 /*!
  * \brief This function sets up the project
  *
@@ -136,11 +108,10 @@ void setup(void)
     // Stop Watchdog
     WDT_A_holdTimer();
 
-    Switch_init();
-    LED_init();
+    // TODO output_init and input_init
+    outputs_init();
+    inputs_init();
     ADC_init();
-    Keypad_init();
-    Servo_init();
     Timer_init();
 
     const uint8_t port_mapping[] = {
@@ -230,18 +201,6 @@ int main(void)
 {
     setup();
 
-//    while (1)
-//    {
-//        GPIO_setOutputLowOnPin(KEYPAD_PORT, GPIO_PIN4);
-//        GPIO_setOutputHighOnPin(KEYPAD_PORT, GPIO_PIN4);
-//        GPIO_setOutputLowOnPin(KEYPAD_PORT, GPIO_PIN5);
-//        GPIO_setOutputHighOnPin(KEYPAD_PORT, GPIO_PIN5);
-//        GPIO_setOutputLowOnPin(KEYPAD_PORT, GPIO_PIN6);
-//        GPIO_setOutputHighOnPin(KEYPAD_PORT, GPIO_PIN6);
-//        GPIO_setOutputLowOnPin(KEYPAD_PORT, GPIO_PIN7);
-//        GPIO_setOutputHighOnPin(KEYPAD_PORT, GPIO_PIN7);
-//    }
-
     printString("Welcome to\nEngineering Sim!", 27);
     delayMilliSec(5000);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
@@ -306,7 +265,6 @@ void ADC14_IRQHandler(void)
         }
         else
         {
-
             ADC14_toggleConversionTrigger();
         }
     }
@@ -321,42 +279,4 @@ void T32_INT1_IRQHandler(void)
     GPIO_setOutputHighOnPin(BLINK_PORT, BLINK_PIN);
 //    while (1)
 //        ;
-//    Timer32_setCount(TIMER32_0_BASE, 60 * CS_getMCLK());
-}
-
-/*!
- * \brief This function handles the interrupt of TA2 CCR0
- *
- * This function turns makes the speaker beep and toggles the LED
- *
- *\return None
- */
-void TA2_0_IRQHandler(void)
-{
-    Timer_A_clearCaptureCompareInterrupt(TIMER_A2_BASE,
-    TIMER_A_CAPTURECOMPARE_REGISTER_0);
-    Timer_A_setCompareValue(TIMER_A0_BASE,
-    TIMER_A_CAPTURECOMPARE_REGISTER_0,
-                            BEEP);
-    GPIO_setOutputHighOnPin(BLINK_PORT, BLINK_PIN);
-}
-
-/*!
- * \brief This function handles the interrupt of TA2 CCRN
- *
- * This function turns off the speaker, togles the LED, and adjusts the frequency
- * based on the time remaining.
- *
- * \return None
- */
-void TA2_N_IRQHandler(void)
-{
-    Timer_A_clearInterruptFlag(TIMER_A2_BASE);
-    Timer_A_setCompareValue(TIMER_A0_BASE,
-    TIMER_A_CAPTURECOMPARE_REGISTER_0,
-                            0);
-    Timer_A_setCompareValue(TIMER_A2_BASE,
-    TIMER_A_CAPTURECOMPARE_REGISTER_0,
-                            TIMER32_1->VALUE / 3840);
-    GPIO_setOutputLowOnPin(BLINK_PORT, BLINK_PIN);
 }
