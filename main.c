@@ -90,7 +90,6 @@ void ADC_init(void)
     ADC14_enableSampleTimer(ADC_MANUAL_ITERATION);
     ADC14_setResolution(ADC_14BIT);
     ADC14_enableConversion();
-    ADC14_toggleConversionTrigger();
     ADC14_enableInterrupt(ADC_INT3);
     ADC14_enableInterrupt(ADC_INT4);
     ADC14_enableInterrupt(ADC_INT5);
