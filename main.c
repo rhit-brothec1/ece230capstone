@@ -34,6 +34,7 @@
 #include "outputs.h"
 #include "delays.h"
 #include "Timer.h"
+#include "Tasks.h"
 
 #define NUM_OF_TASKS                                                7
 
@@ -47,7 +48,7 @@ typedef enum _diff
     Easy, Medium, Hard
 } Difficulty;
 
-static volatile int16_t digitalValue;
+static int digitalValue;
 static volatile uint16_t taskIndex;
 static volatile Tasks taskList[NUM_OF_TASKS];
 
@@ -107,6 +108,8 @@ void setup(void)
 {
     // Stop Watchdog
     WDT_A_holdTimer();
+
+    srand(69);
 
     // TODO output_init and input_init
     outputs_init();
@@ -212,6 +215,9 @@ int main(void)
     commandInstruction(CLEAR_DISPLAY_MASK, false);
 
     generateRandomOrder();
+
+    currentTask = Power;
+    taskDivertPower(&digitalValue);
 
 // TODO game
     currentTask = taskList[taskIndex];
