@@ -27,6 +27,9 @@
 /* Standard Includes */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 // Other includes
 #include "lcd.h"
@@ -49,7 +52,6 @@ typedef enum _diff
 } Difficulty;
 
 static int digitalValue;
-static volatile uint16_t taskIndex;
 static volatile Tasks taskList[NUM_OF_TASKS];
 
 Tasks currentTask;
@@ -133,13 +135,28 @@ void setup(void)
     Interrupt_enableMaster();
 }
 
+/*!
+ * \brief This function uses I/O for setting the difficulty
+ *
+ * This function uses S1 and S2 to determine the difficulty of the game. S1
+ * presses will rotate through the difficulties and S2 will set the difficulty.
+ *
+ * The LCD already has instructions "S1:select S2:set" on bottom row, upon
+ * updating the difficulty the LCD will display the current difficulty selected.
+ *
+ * \return Difficulty that the user selected
+ */
 Difficulty setDifficulty(void)
 {
     int select = 0;
+    // Let users interact with the mechanic before letting them set
     while (!Switch_pressed(1))
         ;
     commandInstruction(RETURN_HOME_MASK, false);
     printString("Easy            ", 16);
+    while (Switch_pressed(1))
+        ;
+    // Loop to change difficulty until S2 press
     while (!Switch_pressed(4))
     {
         if (Switch_pressed(1))
@@ -163,6 +180,7 @@ Difficulty setDifficulty(void)
             }
 
         }
+        // Wait until S1 has been depressed
         while (Switch_pressed(1))
             ;
     }
@@ -181,13 +199,12 @@ Difficulty setDifficulty(void)
  */
 void generateRandomOrder(void)
 {
-    taskIndex = 0;
-// array to keep track of which Tasks have been picked
+    // array to keep track of which Tasks have been picked
     bool picked[NUM_OF_TASKS] = { false };
     int i;
     for (i = 0; i < NUM_OF_TASKS; i++)
     {
-        int num = rand() % (NUM_OF_TASKS + 1);
+        int num = rand() % NUM_OF_TASKS;
         // Probe until Task not picked
         while (picked[num])
         {
@@ -203,11 +220,12 @@ int main(void)
 {
     setup();
 
+    /* ----- Game introduction ----- */
     printString("Welcome to\nEngineering Sim!", 27);
     delayMilliSec(5000);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
     commandInstruction(RETURN_HOME_MASK, false);
-
+    /* ----- Game setup ----- */
     printString("Set difficulty:\nS1:select S2:set", 32);
     Difficulty difficulty = setDifficulty();
     commandInstruction(RETURN_HOME_MASK, false);
@@ -215,27 +233,65 @@ int main(void)
 
     generateRandomOrder();
 
-    currentTask = Power;
-    taskDivertPower(&digitalValue);
-
-// TODO game
-    currentTask = taskList[taskIndex];
+    /* ----- Gameplay ----- */
     Timer32_setCount(TIMER32_0_BASE, 60 * CS_getMCLK());
     Timer32_startTimer(TIMER32_0_BASE, true);
     Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_UP_MODE);
     Timer_A_startCounter(TIMER_A2_BASE, TIMER_A_UPDOWN_MODE);
 
-    while (1)
+    int taskIndex;
+    for (taskIndex = 0; taskIndex < NUM_OF_TASKS; taskIndex++)
     {
-
+        currentTask = taskList[taskIndex];
+        switch (currentTask)
+        {
+        case Password:
+            taskPassword();
+            break;
+        case Lights:
+            taskLights();
+            break;
+        case Temp:
+            taskTemp();
+            break;
+        case Direction:
+            taskDirection();
+            break;
+        case Power:
+            taskDivertPower(&digitalValue);
+            break;
+        case Reaction:
+            taskReaction();
+            break;
+        case Binary:
+            taskBinary();
+            break;
+        default:
+            commandInstruction(RETURN_HOME_MASK, false);
+            commandInstruction(CLEAR_DISPLAY_MASK, false);
+            printString("Error 404:\nTask not found", 25);
+        }
     }
+    Timer32_haltTimer(TIMER32_0_BASE);
+    Timer_A_stopTimer(TIMER_A0_BASE);
+    Timer_A_stopTimer(TIMER_A2_BASE);
+    commandInstruction(RETURN_HOME_MASK, false);
+    commandInstruction(CLEAR_DISPLAY_MASK, false);
+    long score = TIMER32_1->VALUE * (1+ difficulty*0.1) / 3840;
+    char end[22];
+    sprintf(end, "You win!\nScore: %d", score);
+    printString(end, 22);
+
+    while (1)
+        ;
+
 }
 
 void ADC14_IRQHandler(void)
 {
     uint64_t status = ADC14_getEnabledInterruptStatus();
     ADC14_clearInterruptFlag(status);
-// Potentiometer
+    // Potentiometer
     if (ADC_INT3 & status)
     {
         // if direction or power
@@ -248,7 +304,7 @@ void ADC14_IRQHandler(void)
             ADC14_toggleConversionTrigger();
         }
     }
-// Thermistor
+    // Thermistor
     if (ADC_INT4 & status)
     {
         if (currentTask == Temp)
@@ -261,7 +317,7 @@ void ADC14_IRQHandler(void)
             ADC14_toggleConversionTrigger();
         }
     }
-// Photoresistor
+    // Photoresistor
     if (ADC_INT5 & status)
     {
         if (currentTask == Lights)
@@ -275,6 +331,14 @@ void ADC14_IRQHandler(void)
     }
 }
 
+/*!
+ * \brief This function handles the interrupt of Timer32_0
+ *
+ * This function handles the game over mechanism of the game by displaying "Game
+ * over" to the LCD, turning on P1.0, and locking the system up.
+ *
+ * \return None
+ */
 void T32_INT1_IRQHandler(void)
 {
     Timer32_clearInterruptFlag(TIMER32_0_BASE);
@@ -282,6 +346,6 @@ void T32_INT1_IRQHandler(void)
     commandInstruction(RETURN_HOME_MASK, false);
     printString("Game over!", 10);
     GPIO_setOutputHighOnPin(BLINK_PORT, BLINK_PIN);
-//    while (1)
-//        ;
+    while (1)
+        ;
 }
