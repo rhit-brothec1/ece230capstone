@@ -27,18 +27,17 @@ void External_LED_init(void)
     GPIO_setOutputLowOnPin(EXTERNAL_LED_PORT, EXTERNAL_LED_ALL_PINS);
 }
 
-Timer_A_PWMConfig servo_PWMConfig = {
-TIMER_A_CLOCKSOURCE_SMCLK,
-                                      TIMER_A_CLOCKSOURCE_DIVIDER_2,
-                                      SERVO_PERIOD,
-                                      TIMER_A_CAPTURECOMPARE_REGISTER_1,
-                                      TIMER_A_OUTPUTMODE_RESET_SET,
-                                      MIDDLE_ANGLE };
+Timer_A_PWMConfig servo_PWMConfig = {TIMER_A_CLOCKSOURCE_SMCLK,
+                                     TIMER_A_CLOCKSOURCE_DIVIDER_2,
+                                     SERVO_PERIOD,
+                                     TIMER_A_CAPTURECOMPARE_REGISTER_1,
+                                     TIMER_A_OUTPUTMODE_RESET_SET,
+                                     MIDDLE_ANGLE };
 
 void Servo_init(void)
 {
     GPIO_setAsPeripheralModuleFunctionOutputPin(SERVO_PORT,
-    SERVO_PIN,
+                                                SERVO_PIN,
                                                 GPIO_PRIMARY_MODULE_FUNCTION);
     Timer_A_generatePWM(TIMER_A1_BASE, &servo_PWMConfig);
 }
@@ -70,7 +69,7 @@ void RGBLED_turnOnOnlyPin(int pin)
 void External_LED_turnOnHex(int value)
 {
     GPIO_setOutputLowOnPin(EXTERNAL_LED_PORT, EXTERNAL_LED_ALL_PINS);
-    // Values are weird b/c the LEDs are 3.0, 3.5, 3.6, 3.7
+    // Values are weird b/c the LEDs are 3.7, 3.6, 3.5, 3.0
     switch (value)
     {
     case 0:
@@ -119,5 +118,7 @@ void External_LED_turnOnHex(int value)
 
 void Servo_setAngle(int value)
 {
-    // TODO
+    int multiple = value / 910;
+    servo_PWMConfig.dutyCycle = MIN_ANGLE + multiple * TEN_DEGREES;
+    Timer_A_generatePWM(TIMER_A1_BASE, &servo_PWMConfig);
 }

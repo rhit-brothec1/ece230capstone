@@ -277,7 +277,7 @@ int main(void)
     Timer_A_stopTimer(TIMER_A2_BASE);
     commandInstruction(RETURN_HOME_MASK, false);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
-    long score = TIMER32_1->VALUE * (1+ difficulty*0.1) / 3840;
+    long score = TIMER32_1->VALUE * (1 + difficulty * 0.1) / 3840;
     char end[22];
     sprintf(end, "You win!\nScore: %d", score);
     printString(end, 22);
