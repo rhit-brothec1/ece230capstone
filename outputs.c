@@ -7,12 +7,6 @@
 #include <outputs.h>
 #include <ti/devices/msp432p4xx/driverlib/driverlib.h>
 
-void outputs_init(void)
-{
-    RGBLED_init();
-    External_LED_init();
-    Servo_init();
-}
 /*!
  * \brief This function configures LED2 pins as output pins
  *
@@ -49,6 +43,13 @@ void Servo_init(void)
     Timer_A_generatePWM(TIMER_A1_BASE, &servo_PWMConfig);
 }
 
+void outputs_init(void)
+{
+    RGBLED_init();
+    External_LED_init();
+    Servo_init();
+}
+
 void RGBLED_togglePin(int pin)
 {
     GPIO_toggleOutputOnPin(RGB_PORT, 1 << pin);
@@ -68,5 +69,55 @@ void RGBLED_turnOnOnlyPin(int pin)
 
 void External_LED_turnOnHex(int value)
 {
-    // TODO convert P3 LEDs to hex
+    GPIO_setOutputLowOnPin(EXTERNAL_LED_PORT, EXTERNAL_LED_ALL_PINS);
+    // Values are weird b/c the LEDs are 3.0, 3.5, 3.6, 3.7
+    switch (value)
+    {
+    case 0:
+        break;
+    case 1:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b00000001);
+        break;
+    case 2:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b00100000);
+        break;
+    case 3:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b00100001);
+        break;
+    case 4:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b01000000);
+        break;
+    case 5:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b01000001);
+        break;
+    case 6:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b01100000);
+        break;
+    case 7:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b01100001);
+        break;
+    case 8:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b10000000);
+        break;
+    case 9:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b10000001);
+        break;
+    case 10:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b10100000);
+        break;
+    case 11:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b10100001);
+        break;
+    case 12:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b11000000);
+        break;
+    case 13:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b11000001);
+        break;
+    }
+}
+
+void Servo_setAngle(int value)
+{
+    // TODO
 }
