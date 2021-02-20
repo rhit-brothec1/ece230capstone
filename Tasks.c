@@ -37,13 +37,38 @@ void taskPassword()
 void taskLights()
 {
     //Cover PhotoR until a threshold value is reached relative to the initial value)
+
     //TODO Get the value of the photoR at the start of the task
+    ADC14_toggleConversionTrigger();
+    int target = rand() % 16384;
 
-    //TODO Check ADC input value from PhotoR
+    while ((target < *digitalValue + 2000) && (target > *digitalValue - 2000))
+    {
+        target = rand() % 16384;
+    }
 
-    //TODO Check for win
+    char a[5];
+    sprintf(a, "%i", target);
+    printString(a, 5);
 
-    //TODO Check for FAILURE
+    while (1)
+    {
+        //DONE Check for win
+        if ((*digitalValue < target + 250) && (*digitalValue > target - 250))
+        {
+            printString("Correct!", 8);
+            return;
+        }
+        ADC14_toggleConversionTrigger();
+        commandInstruction(SET_CURSOR_MASK | LINE2_OFFSET, false);
+        char a[5];
+        sprintf(a, "%i", *digitalValue);
+        printString(a, 5);
+        delayMilliSec(1000);
+
+        //TODO Check for FAILURE
+
+    }
 
 }
 
@@ -52,12 +77,36 @@ void taskTemp()
     //Hold temp sensor until a threshold value is reached (relative to the initial value)
 
     //TODO Get the value of the temperature at the start of the task
+    ADC14_toggleConversionTrigger();
+    int target = rand() % 16384;
 
-    //TODO Check ADC input value from Thermistor
+    while ((target < *digitalValue + 2000) && (target > *digitalValue - 2000))
+    {
+        target = rand() % 16384;
+    }
 
-    //TODO Check for win
+    char a[5];
+    sprintf(a, "%i", target);
+    printString(a, 5);
 
-    //TODO Check for FAILURE
+    while (1)
+    {
+        //DONE Check for win
+        if ((*digitalValue < target + 250) && (*digitalValue > target - 250))
+        {
+            printString("Correct!", 8);
+            return;
+        }
+        ADC14_toggleConversionTrigger();
+        commandInstruction(SET_CURSOR_MASK | LINE2_OFFSET, false);
+        char a[5];
+        sprintf(a, "%i", *digitalValue);
+        printString(a, 5);
+        delayMilliSec(1000);
+
+        //TODO Check for FAILURE
+
+    }
 
 }
 
@@ -81,7 +130,7 @@ void taskDivertPower(int *digitalValue)
 {
     //Use the potentiometer to "divert the power" to a certain value
 
-    //TODO Get the value from the pot at the start of the task and DEFINE win condition based on the current value (i.e. X away from the start value)
+    //DONE Get the value from the pot at the start of the task and DEFINE win condition based on the current value (i.e. X away from the start value)
     ADC14_toggleConversionTrigger();
     int target = rand() % 16384;
 
@@ -99,7 +148,7 @@ void taskDivertPower(int *digitalValue)
         //DONE Check for win
         if ((*digitalValue < target + 250) && (*digitalValue > target - 250))
         {
-            printString("Game over!", 10);
+            printString("Correct!", 8);
             return;
         }
         ADC14_toggleConversionTrigger();
@@ -125,5 +174,7 @@ void taskReaction()
 
 void taskBinary()
 {
-    //Task description
+    //Enter binary sequence into keypad based on which LEDs are on/off
+
+
 }
