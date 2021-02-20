@@ -1,7 +1,9 @@
 /*
  * Tasks.c
  *
- *  Created on: Feb 16, 2021
+ * Description: Helper file containing implementation of the tasks
+ *
+ *   Edited on: Feb 19, 2021
  *      Author: Jesus Capo
  */
 
@@ -23,10 +25,18 @@
 #include "Timer.h"
 #include "Tasks.h"
 
-void taskPassword()
+void taskPassword(Difficulty difficulty)
 {
     //Enter a password of min 4 length; incorrect decreases time; length of password increase with difficulty
     //TODO Wait for and get input from the keypad
+    // this'll probably work
+    const int length = 3 + difficulty;
+    char password[length];
+    int i;
+    for (i = 0; i < length; i++)
+    {
+        password[i] = keypad_map[rand() % 4][rand() % 4];
+    }
 
     //TODO Check for win
 
@@ -34,7 +44,7 @@ void taskPassword()
 
 }
 
-void taskLights()
+void taskLights(Difficulty difficulty, int *digitalValue)
 {
     //Cover PhotoR until a threshold value is reached relative to the initial value)
 
@@ -72,7 +82,7 @@ void taskLights()
 
 }
 
-void taskTemp()
+void taskTemp(Difficulty difficulty, int *digitalValue)
 {
     //Hold temp sensor until a threshold value is reached (relative to the initial value)
 
@@ -110,7 +120,7 @@ void taskTemp()
 
 }
 
-void taskDirection()
+void taskDirection(Difficulty difficulty, int *digitalValue)
 {
     //Change angle of the servo to the desired position (or power level number) using the potentiometer,
 
@@ -126,7 +136,7 @@ void taskDirection()
 
 }
 
-void taskDivertPower(int *digitalValue)
+void taskDivertPower(Difficulty difficulty, int *digitalValue)
 {
     //Use the potentiometer to "divert the power" to a certain value
 
@@ -163,7 +173,7 @@ void taskDivertPower(int *digitalValue)
     }
 }
 
-void taskReaction()
+void taskReaction(Difficulty difficulty)
 {
     //Press button when BLUE LED is on (difficulty may change the color of the LED and may cause it to flash, fail if click at wrong time
 
@@ -172,9 +182,8 @@ void taskReaction()
     //TODO Check for failure
 }
 
-void taskBinary()
+void taskBinary(Difficulty difficulty)
 {
     //Enter binary sequence into keypad based on which LEDs are on/off
-
 
 }

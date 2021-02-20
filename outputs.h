@@ -1,7 +1,10 @@
 /*
  * outputs.h
  *
- *  Created on: Feb 16, 2021
+ * Description: Header file for output functions. Includes several functions for
+ *              LED2 and a function for the external LEDs and servo.
+ *
+ *   Edited on: Feb 19, 2021
  *      Author: Cooper Brotherton and Jesus Capo
  */
 

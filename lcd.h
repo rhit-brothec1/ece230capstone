@@ -1,10 +1,11 @@
 /*!
  * lcd.h
  *
- *      Description: Header file for LCD library. For Hitachi HD44780 parallel
- *      LCD in 8-bit mode.
+ * Description: Header file for LCD library. For Hitachi HD44780 parallel
+ *              LCD in 4-bit mode. Includes several useful masks for commands.
  *
  *      Author: ece230
+ *   Edited by: Cooper Brotherton
  */
 
 #ifndef LCD_H_
@@ -69,7 +70,7 @@ extern "C"
  *  \brief This function configures the selected pins for an LCD
  *
  *  This function configures the selected pins as output pins to interface
- *      with a Hitachi HD44780 LCD in 8-bit mode.
+ *      with a Hitachi HD44780 LCD in 4-bit mode.
  *         Valid values for ports are:
  *         - \b GPIO_PORT_P1
  *         - \b GPIO_PORT_P2
@@ -97,7 +98,7 @@ extern "C"
  *  \param rsPin is the pin in the selected port for the RS signal
  *  \param enPort is the port for the Enable signal
  *  \param enPin is the pin in the selected port for the Enable signal
- *  \param dbPort is the port for DB0-7
+ *  \param dbPort is the port for DB4-7
  *
  *  Modified bits of \b PxDIR register and bits of \b PxSEL register.
  *
@@ -108,9 +109,9 @@ extern void configLCD(uint_fast8_t rsPort, uint_fast16_t rsPin,
                     uint_fast8_t dbPort);
 
 /*!
- *  \brief This function initializes LCD
+ *  \brief This function initializes the LCD
  *
- *  This function generates initialization sequence for LCD for 8-bit mode.
+ *  This function generates initialization sequence for LCD for 4-bit mode.
  *      Delays set by worst-case 2.7 V
  *
  *  \return None
@@ -118,21 +119,23 @@ extern void configLCD(uint_fast8_t rsPort, uint_fast16_t rsPin,
 extern void initLCD(void);
 
 /*!
- *  \brief This function prints a character to current cursor position
+ *  \brief This function prints a character to the LCD
  *
- *  This function prints an ASCII character to current cursor position on LCD.
+ *  This function prints an ASCII character at the current cursor position on the
+ *  LCD.
  *
- *  \param character is the character to display on the LCD
+ *  \param character is the character to be printed on the LCD
  *
  *  \return None
  */
 extern void printChar(char character);
 
 /*!
- *  \brief This function prints a String to current cursor position
+ *  \brief This function prints a String to the LCD
  *
  *  This function prints a string of ASCII characters on LCD. If the character
- *  is 0, it is skipped.
+ *  is 0, it is skipped, if the character is \n, the cursor is set to the second
+ *  line.
  *
  *  \param chars is the String or character array to display on the LCD
  *  \param length is the length of the String
@@ -142,11 +145,11 @@ extern void printChar(char character);
 extern void printString(char* chars, int length);
 
 /*!
- * Function to write command instruction to LCD.
+ * Function to write a command instruction to LCD.
  *
- * \param command   Command instruction to write to LCD
- * \param init      Whether the instruction is part of the first
- *                  few initialization instructions.
+ * \param command   Command instruction to write to the LCD
+ * \param init      Whether the instruction is part of the first few
+ *                  initialization instructions.
  *
  * \return None
  */

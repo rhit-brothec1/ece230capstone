@@ -1,7 +1,10 @@
 /*
  * inputs.h
  *
- *  Created on: Feb 16, 2021
+ * Description: Header file for game inputs. It has functions for switch and
+ *              keypad inputs
+ *
+ *  Created on: Feb 19, 2021
  *      Author: Cooper Brotherton and Jesus Capo
  */
 
@@ -25,7 +28,8 @@ extern "C" {
 /*!
  * \brief This function initializes the inputs for the system
  *
- * TODO
+ * This function initializes P1.1, P1.4, and P1.5 for switch inputs, P4.0 for
+ * keypad I/O, and ADC14.
  *
  * \return None
  */
@@ -50,7 +54,8 @@ extern bool Switch_pressed(int pin);
 /*!
  * \brief This function retrieves input from the keypad
  *
- * TODO
+ * This function rotates through the row (output) pins to determine if and what
+ * is being pressed on the keypad.
  *
  * \return char corresponding to the keypad input
  */

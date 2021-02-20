@@ -1,17 +1,19 @@
 /*
  * outputs.c
  *
- *  Created on: Feb 16, 2021
+ * Description: Helper file for handling outputs. Also includes more in-depth
+ *              initialization
+ *
+ *   Edited on: Feb 16, 2021
  *      Author: Cooper Brotherton and Jesus Capo
  */
 #include <outputs.h>
 #include <ti/devices/msp432p4xx/driverlib/driverlib.h>
 
 /*!
- * \brief This function configures LED2 pins as output pins
+ * \brief This function configures LED2
  *
- * This function configures P2.0, P2.1, and P2.2 as output pins for the RGB
- * LED2, and initializes them to 'off'
+ * This function configures P2.0-2.2 as output pins for the RGB LED2
  *
  * \return None
  */
@@ -21,6 +23,13 @@ void RGBLED_init(void)
     GPIO_setOutputLowOnPin(RGB_PORT, RGB_ALL_PINS);
 }
 
+/*!
+ * \brief This function configures the external LEDs
+ *
+ * This function configures P3.0 and P3.5-3.7 as output pins.
+ *
+ * \return None
+ */
 void External_LED_init(void)
 {
     GPIO_setAsOutputPin(EXTERNAL_LED_PORT, EXTERNAL_LED_ALL_PINS);
@@ -34,6 +43,13 @@ Timer_A_PWMConfig servo_PWMConfig = {TIMER_A_CLOCKSOURCE_SMCLK,
                                      TIMER_A_OUTPUTMODE_RESET_SET,
                                      MIDDLE_ANGLE };
 
+/*!
+ * \brief This function configures the servo
+ *
+ * This function sets P2.6 in PWM mode and generates a PWM signal using TimerA1.1
+ *
+ * \return None
+ */
 void Servo_init(void)
 {
     GPIO_setAsPeripheralModuleFunctionOutputPin(SERVO_PORT,

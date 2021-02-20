@@ -1,12 +1,12 @@
 /*!
  * lcd.c
  *
- *      Description: Helper file for LCD library. For Hitachi HD44780 parallel
- *      LCD in 4-bit mode.
+ * Description: Helper file for LCD library. For Hitachi HD44780 parallel
+ *              LCD in 4-bit mode.
  *
  *      Author: ece230
- *      Edited by: Cooper Brotherton
- *      Date: February 10, 2021
+ *   Edited by: Cooper Brotherton
+ *        Date: February 10, 2021
  */
 
 /* DriverLib Includes */
@@ -42,7 +42,7 @@ void configLCD(uint_fast8_t rsPort, uint_fast16_t rsPin, uint_fast8_t enPort,
 
 /*!
  * Delay method based on instruction execution time.
- *   Execution times from Table 6 of HD44780 data sheet, with buffer.
+ * Execution times from Table 6 of HD44780 data sheet, with buffer.
  *
  * \param mode RS mode selection
  * \param instruction Instruction/data to write to LCD
@@ -66,7 +66,7 @@ void instructionDelay(uint8_t mode, uint8_t instruction)
  *
  * \param mode          Write mode: 0 - control, 1 - data
  * \param instruction   Instruction/data to write to LCD
- * \param init          Whether the instruction part of the first
+ * \param init          Whether the instruction part of the first few
  *                      initialization instructions
  *
  * \return None
