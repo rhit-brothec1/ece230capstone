@@ -17,9 +17,6 @@ extern "C" {
 /* DriverLib Includes */
 #include <ti/devices/msp432p4xx/driverlib/driverlib.h>
 
-#include "main.c"
-
-
 /*!
  * \brief This function handles the Password task
  *
@@ -32,7 +29,7 @@ extern "C" {
  *
  * \return None
  */
-extern void taskPassword(Difficulty difficulty);
+extern void taskPassword(int difficulty);
 
 /*!
  * \brief This function handles the Lights task
@@ -46,7 +43,7 @@ extern void taskPassword(Difficulty difficulty);
  *
  * \return None
  */
-extern void taskLights(Difficulty difficulty, int *digitalValue);
+extern void taskLights(int difficulty, int *digitalValue);
 
 /*!
  * \brief This function handles the Temperature task
@@ -60,7 +57,7 @@ extern void taskLights(Difficulty difficulty, int *digitalValue);
  *
  * \return None
  */
-extern void taskTemp(Difficulty difficulty, int *digitalValue);
+extern void taskTemp(int difficulty, int *digitalValue);
 
 /*!
  * \brief This function handles the Direction task
@@ -75,7 +72,7 @@ extern void taskTemp(Difficulty difficulty, int *digitalValue);
  *
  * \return None
  */
-extern void taskDirection(Difficulty difficulty, int *digitalValue);
+extern void taskDirection(int difficulty, int *digitalValue);
 
 /*!
  * \brief This function handles the Power task
@@ -90,7 +87,7 @@ extern void taskDirection(Difficulty difficulty, int *digitalValue);
  *
  * \return None
  */
-extern void taskDivertPower(Difficulty difficulty, int *digitalValue);
+extern void taskDivertPower(int difficulty, int *digitalValue);
 
 /*!
  * \brief This function handles the Reaction task
@@ -104,7 +101,7 @@ extern void taskDivertPower(Difficulty difficulty, int *digitalValue);
  *
  * \return None
  */
-extern void taskReaction(Difficulty difficulty);
+extern void taskReaction(int difficulty);
 
 /*!
  * \brief This function handles the Binary task
@@ -119,7 +116,7 @@ extern void taskReaction(Difficulty difficulty);
  *
  * \return None
  */
-extern void taskBinary(Difficulty difficulty);
+extern void taskBinary(int difficulty);
 
 
 #ifdef __cplusplus

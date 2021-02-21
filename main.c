@@ -16,12 +16,12 @@
  *          --|RST      P6.4-6.7 |===> D4-7
  *            |             P3.3 |---> RS
  *       S1-->|P1.1         P3.2 |---> E
- *       S2-->|P1.4         P1.0 |---> LED1
- *       S3-->|P1.5     P2.0-2.2 |---> LED2
+ *       S2-->|P1.4              |
+ *       S3-->|P1.5         P1.0 |---> LED1
  *    Therm-->|P5.0 P3.0,3.5-3.7 |---> External LEDs
  *    Photo-->|P5.1         P2.6 |---> Buzzer
  *      Pot-->|P5.2         P2.7 |---> Servo
- *    C1-4===>|R1-4    P4.0-4.3  |===> R1-4
+ *    C1-4===>|P4.4-4.7 P4.0-4.3 |===> R1-4
  *
  *******************************************************************************/
 /* DriverLib Includes */
@@ -49,11 +49,6 @@ typedef enum _tasks
 {
     Password, Lights, Temp, Direction, Power, Reaction, Binary
 } Tasks;
-
-typedef enum _diff
-{
-    Easy, Medium, Hard
-} Difficulty;
 
 static int digitalValue;
 static volatile Tasks taskList[NUM_OF_TASKS];
@@ -106,25 +101,25 @@ void setup(void)
  * This function uses S1 and S2 to determine the difficulty of the game. S1
  * presses will rotate through the difficulties and S2 will set the difficulty.
  *
- * \return Difficulty that the user selected
+ * \return select is the integer representing the difficulty the user selected
  */
-Difficulty setDifficulty(void)
+int setDifficulty(void)
 {
     commandInstruction(CLEAR_DISPLAY_MASK, false);
     commandInstruction(RETURN_HOME_MASK, false);
     printString("Set difficulty:\nS1:select S2:set", 32);
     int select = 0;
     // Let users interact with the mechanic before letting them set
-    while (!Switch_pressed(1))
+    while (!switch_pressed(1))
         ;
     commandInstruction(RETURN_HOME_MASK, false);
     printString("Easy            ", 16);
-    while (Switch_pressed(1))
+    while (switch_pressed(1))
         ;
     // Loop to change difficulty until S2 press
-    while (!Switch_pressed(4))
+    while (!switch_pressed(4))
     {
-        if (Switch_pressed(1))
+        if (switch_pressed(1))
         {
             // Display new difficulty and rotate
             select = (select + 1) % 3;
@@ -142,15 +137,16 @@ Difficulty setDifficulty(void)
                 break;
             default:
                 printString("Easy  ", 6);
+                select = 0;
             }
 
         }
         // Wait until S1 has been depressed
-        while (Switch_pressed(1))
+        while (switch_pressed(1))
             ;
     }
 
-    return (Difficulty) select;
+    return select;
 }
 
 /*!
@@ -199,7 +195,15 @@ int main(void)
     delayMilliSec(5000);
 
     /* ----- Game setup ----- */
-    Difficulty difficulty = setDifficulty();
+    const int difficulty = setDifficulty();
+
+//    currentTask = Power;
+//    while (1)
+//    {
+//        taskDivertPower(difficulty, &digitalValue);
+//    }
+
+
     commandInstruction(RETURN_HOME_MASK, false);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
     generateRandomOrder();
@@ -219,25 +223,25 @@ int main(void)
         switch (currentTask)
         {
         case Password:
-            taskPassword();
+            taskPassword(difficulty);
             break;
         case Lights:
-            taskLights();
+            taskLights(difficulty, &digitalValue);
             break;
         case Temp:
-            taskTemp();
+            taskTemp(difficulty, &digitalValue);
             break;
         case Direction:
-            taskDirection();
+            taskDirection(difficulty, &digitalValue);
             break;
         case Power:
-            taskDivertPower(&digitalValue);
+            taskDivertPower(difficulty, &digitalValue);
             break;
         case Reaction:
-            taskReaction();
+            taskReaction(difficulty);
             break;
         case Binary:
-            taskBinary();
+            taskBinary(difficulty);
             break;
         default:
             commandInstruction(RETURN_HOME_MASK, false);

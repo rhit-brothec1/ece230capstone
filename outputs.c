@@ -11,19 +11,6 @@
 #include <ti/devices/msp432p4xx/driverlib/driverlib.h>
 
 /*!
- * \brief This function configures LED2
- *
- * This function configures P2.0-2.2 as output pins for the RGB LED2
- *
- * \return None
- */
-void RGBLED_init(void)
-{
-    GPIO_setAsOutputPin(RGB_PORT, RGB_ALL_PINS);
-    GPIO_setOutputLowOnPin(RGB_PORT, RGB_ALL_PINS);
-}
-
-/*!
  * \brief This function configures the external LEDs
  *
  * This function configures P3.0 and P3.5-3.7 as output pins.
@@ -60,26 +47,20 @@ void Servo_init(void)
 
 void outputs_init(void)
 {
-    RGBLED_init();
     External_LED_init();
     Servo_init();
 }
 
-void RGBLED_togglePin(int pin)
+void External_LED_turnonLED(int LED)
 {
-    GPIO_toggleOutputOnPin(RGB_PORT, 1 << pin);
+    GPIO_setOutputLowOnPin(EXTERNAL_LED_PORT, EXTERNAL_LED_ALL_PINS);
+    const int mask = LED == 0 ? 0 : 1 << LED + 3;
+    GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, mask);
 }
 
-void RGBLED_turnOff()
+void External_LED_turnOff(void)
 {
-    GPIO_setOutputLowOnPin(RGB_PORT, RGB_ALL_PINS);
-}
-
-void RGBLED_turnOnOnlyPin(int pin)
-{
-    int mask = 1 << pin;
-    GPIO_setOutputLowOnPin(RGB_PORT, ~mask);
-    GPIO_setOutputHighOnPin(RGB_PORT, mask);
+    GPIO_setOutputLowOnPin(EXTERNAL_LED_PORT, EXTERNAL_LED_ALL_PINS);
 }
 
 void External_LED_turnOnHex(int value)

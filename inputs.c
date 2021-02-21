@@ -10,9 +10,6 @@
 #include <inputs.h>
 #include <ti/devices/msp432p4xx/driverlib/driverlib.h>
 
-const char keypad_map[4][4] = { { '1', '2', '3', 'A' }, { '4', '5', '6', 'B' },
-                                { '7', '8', '9', 'C' }, { '*', '0', '#', 'D' } };
-
 /*!
  * \brief This function configures the switches as inputs
  *
@@ -91,13 +88,13 @@ void inputs_init(void)
     ADC_init();
 }
 
-bool Switch_pressed(int pin)
+bool switch_pressed(int pin)
 {
     return GPIO_getInputPinValue(SWITCH_PORT, 1 << pin) == GPIO_INPUT_PIN_HIGH ?
             false : true;
 }
 
-char Keypad_input(void)
+char keypad_get_input(void)
 {
     int key_out;
     int row;
@@ -111,6 +108,8 @@ char Keypad_input(void)
             key_out = (P4->IN & 0b11110000) >> 4;
             if (key_out != 0b1111)
             {
+                while ((P4->IN & 0b11110000) >> 4 != 0b1111)
+                    ;
                 switch (key_out)
                 {
                 case 0b0111:

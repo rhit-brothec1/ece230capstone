@@ -34,7 +34,7 @@ extern "C" {
 /*!
  * \brief This function initializes all of the outputs for the system
  *
- * This function initializes LED2 on P2, the external LEDs on P3, and servo.
+ * This function initializes the external LEDs on P3 and servo.
  *
  * TA1.1 generates a PWM signal for the servo.
  *
@@ -43,37 +43,29 @@ extern "C" {
 extern void outputs_init(void);
 
 /*!
- * \brief This function toggles the LED at the given pin
+ * \brief This function turns on one LED
  *
- * This function changes the state of the LED at the pin.
+ * This function turns on one of the external LEDs.
  *
- * \param pin is the pin to have its LED toggled
- *
- * \return None
- */
-extern void RGBLED_togglePin(int pin);
-
-/*!
- * \brief This function turns off LED2
- *
- * \return None
- */
-extern void RGBLED_turnOff();
-
-/*!
- * \brief This function turns on only one LED
- *
- * This function turns on the LED at the given pin and turns off the rest.
- *
- * \param pin is the pin which will have its LED on. All others will be off.
+ * \param LED is which LED is going to be turned on
  *          Valid values are:
- *          - \b 0 (P2.0 = Red)
- *          - \b 1 (P2.1 = Green)
- *          - \b 2 (P2.2 = Blue)
+ *          - \b 0 (Yellow)
+ *          - \b 1 (Blue)
+ *          - \b 2 (Green)
+ *          - \b 3 (Red)
  *
  * \return None
  */
-extern void RGBLED_turnOnOnlyPin(int pin);
+extern void External_LED_turnonLED(int LED);
+
+
+/*!
+ * \brief This function turns off the external LEDs
+ *
+ * \return None
+ */
+extern void External_LED_turnOff(void);
+
 
 /*!
  * \brief This function turns on the external LEDs based on input value

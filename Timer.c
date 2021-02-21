@@ -100,6 +100,6 @@ void TA2_N_IRQHandler(void)
                             0);
     Timer_A_setCompareValue(TIMER_A2_BASE,
                             TIMER_A_CAPTURECOMPARE_REGISTER_0,
-                            TIMER32_1->VALUE / 3840);
+                            Timer32_getValue(TIMER32_0_BASE) / 3840);
     GPIO_setOutputLowOnPin(BLINK_PORT, BLINK_PIN);
 }

@@ -162,5 +162,8 @@ void printString(char *chars, int length)
         {
             printChar(chars[i]);
         }
+        else {
+            printChar(' ');
+        }
     }
 }

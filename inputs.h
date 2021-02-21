@@ -25,6 +25,10 @@ extern "C" {
 #define KEYPAD_INPUT_PINS                                           0x00F0
 #define KEYPAD_OUTPUT_PINS                                          0x000F
 
+static char keypad_map[4][4] =
+        { { '1', '2', '3', 'A' }, { '4', '5', '6', 'B' },
+          { '7', '8', '9', 'C' }, { '*', '0', '#', 'D' } };
+
 /*!
  * \brief This function initializes the inputs for the system
  *
@@ -49,7 +53,7 @@ extern void inputs_init(void);
  *
  * \return true if the switch is pressed, false otherwise
  */
-extern bool Switch_pressed(int pin);
+extern bool switch_pressed(int pin);
 
 /*!
  * \brief This function retrieves input from the keypad
@@ -59,7 +63,7 @@ extern bool Switch_pressed(int pin);
  *
  * \return char corresponding to the keypad input
  */
-extern char Keypad_input(void);
+extern char keypad_get_input(void);
 
 #ifdef __cplusplus
 }
