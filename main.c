@@ -197,10 +197,10 @@ int main(void)
     /* ----- Game setup ----- */
     const int difficulty = setDifficulty();
 
-//    currentTask = Power;
+//    currentTask = Lights;
 //    while (1)
 //    {
-//        taskDivertPower(difficulty, &digitalValue);
+//        taskLights(difficulty, &digitalValue);
 //    }
 
 
@@ -229,7 +229,7 @@ int main(void)
             taskLights(difficulty, &digitalValue);
             break;
         case Temp:
-            taskTemp(difficulty, &digitalValue);
+//            taskTemp(difficulty, &digitalValue);
             break;
         case Direction:
             taskDirection(difficulty, &digitalValue);
@@ -238,7 +238,7 @@ int main(void)
             taskDivertPower(difficulty, &digitalValue);
             break;
         case Reaction:
-            taskReaction(difficulty);
+//            taskReaction(difficulty);
             break;
         case Binary:
             taskBinary(difficulty);
@@ -256,9 +256,9 @@ int main(void)
     commandInstruction(RETURN_HOME_MASK, false);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
     long score = TIMER32_1->VALUE * (1 + difficulty * 0.1) / 3840;
-    char end[24];
-    sprintf(end, "Good job!\nSalary: %d", score);
-    printString(end, 24);
+    char end[25];
+    sprintf(end, "Good job!\nSalary:$ %d", score);
+    printString(end, 25);
 }
 
 /*!

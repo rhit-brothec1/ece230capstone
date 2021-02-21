@@ -67,6 +67,11 @@ void taskPassword(int difficulty)
     {
         complete = true;
         commandInstruction(SET_CURSOR_MASK | LINE2_OFFSET, false);
+        for (i = 0; i < 17; i++)
+        {
+            printChar(' ');
+        }
+        commandInstruction(SET_CURSOR_MASK | LINE2_OFFSET, false);
         printString(password, length);
         for (i = length; i < 8; i++)
             printChar(' ');
@@ -88,36 +93,18 @@ void taskLights(int difficulty, int *digitalValue)
     commandInstruction(RETURN_HOME_MASK, false);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
     ADC14_toggleConversionTrigger();
-    int target = *digitalValue - 2000;
+    int target = 16000;
 
-    printString("Lights", 6);
-
-//    while ((target < *digitalValue + 2000) && (target > *digitalValue - 2000))
-//    {
-//        target = rand() % 16384;
-//    }
-
-    char a[5];
-    sprintf(a, "%i", target);
-    printString(a, 5);
+    printString("Turn off the\nlights", 19);
 
     while (1)
     {
-        //DONE Check for win
-        if ((*digitalValue < target + 250) && (*digitalValue > target - 250))
+        if (*digitalValue > target)
         {
-            printString("Correct!", 8);
             return;
         }
         ADC14_toggleConversionTrigger();
-        commandInstruction(SET_CURSOR_MASK | LINE2_OFFSET, false);
-        char a[5];
-        sprintf(a, "%i", *digitalValue);
-        printString(a, 5);
-        delayMilliSec(1000);
-
-        //TODO Check for FAILURE
-
+        delayMilliSec(100);
     }
 
 }
@@ -170,18 +157,39 @@ void taskDirection(int difficulty, int *digitalValue)
     commandInstruction(CLEAR_DISPLAY_MASK, false);
     ADC14_toggleConversionTrigger();
     printString("Set direction to\n", 17);
-    int angle = (
-            *digitalValue < 7280 ? 7280 + rand() % 7280 : 7280 - rand() % 7280)
-            / 910;
+    bool lt = *digitalValue < 7280;
+    int targetAngle = (lt ? 7280 + rand() % 7280 : 7280 - rand() % 7280) / 910;
+    char t[5];
+    sprintf(t, "T:%i0", targetAngle);
 
     bool complete = false;
     while (!complete)
     {
         Servo_setAngle(*digitalValue);
-        if ((angle < *digitalValue + 910 * (2 - difficulty))
-                && (angle > *digitalValue - 910 * (2 - difficulty)))
+        commandInstruction(SET_CURSOR_MASK | LINE2_OFFSET, false);
+        int currentAngle = *digitalValue / 910;
+        char a[5];
+        sprintf(a, "C:%i0", currentAngle);
+        printString(t, 5);
+        printChar(0b11011111);
+        printString(a, 5);
+        printChar(0b11011111);
+
+        if (lt && currentAngle > targetAngle)
+        {
+            decrementTimer(difficulty);
+            delayMilliSec(200);
+        }
+        else if (!lt && currentAngle < targetAngle)
+        {
+            decrementTimer(difficulty);
+            delayMilliSec(200);
+        }
+
+        if (targetAngle == currentAngle)
             complete = true;
         ADC14_toggleConversionTrigger();
+        delayMilliSec(100);
     }
 }
 
@@ -214,19 +222,10 @@ void taskDivertPower(int difficulty, int *digitalValue)
         if (lt && (*digitalValue - 250 * (3 - difficulty) > target))
         {
             decrementTimer(difficulty);
-            commandInstruction(RETURN_HOME_MASK, false);
-            printString("ooooooooooof", 12);
         }
         else if (!lt && *digitalValue + 250 * (3 - difficulty) < target)
         {
             decrementTimer(difficulty);
-            commandInstruction(RETURN_HOME_MASK, false);
-            printString("ooooooooooof", 12);
-        }
-        else
-        {
-            commandInstruction(RETURN_HOME_MASK, false);
-            printString("Set power to", 12);
         }
 
         if ((*digitalValue < target + 250 * (3 - difficulty))
@@ -236,12 +235,12 @@ void taskDivertPower(int difficulty, int *digitalValue)
         }
         ADC14_toggleConversionTrigger();
         delayMilliSec(250);
-
     }
 }
 
 void taskReaction(int difficulty)
 {
+    // TODO
     commandInstruction(RETURN_HOME_MASK, false);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
     printString("Press button\nwhen ", 19);
