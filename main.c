@@ -197,11 +197,11 @@ int main(void)
     /* ----- Game setup ----- */
     const int difficulty = setDifficulty();
 
-    currentTask = Lights;
-    while (1)
-    {
-        taskLights(difficulty, &digitalValue);
-    }
+//    currentTask = Lights;
+//    while (1)
+//    {
+//        taskLights(difficulty, &digitalValue);
+//    }
 
 
     commandInstruction(RETURN_HOME_MASK, false);
@@ -238,7 +238,7 @@ int main(void)
             taskDivertPower(difficulty, &digitalValue);
             break;
         case Reaction:
-//            taskReaction(difficulty);
+            taskReaction(difficulty);
             break;
         case Binary:
             taskBinary(difficulty);
