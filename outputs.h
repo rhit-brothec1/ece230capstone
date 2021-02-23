@@ -75,7 +75,6 @@ extern void External_LED_turnOff(void);
  * LEDs 4 and 2.
  *
  *  \param value is the decimal value the represents which LEDs are on.
- *          Valid values range from 0 to 13.
  *
  * \return None
  */

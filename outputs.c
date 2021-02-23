@@ -23,12 +23,12 @@ void External_LED_init(void)
     GPIO_setOutputLowOnPin(EXTERNAL_LED_PORT, EXTERNAL_LED_ALL_PINS);
 }
 
-Timer_A_PWMConfig servo_PWMConfig = {TIMER_A_CLOCKSOURCE_SMCLK,
-                                     TIMER_A_CLOCKSOURCE_DIVIDER_2,
-                                     SERVO_PERIOD,
-                                     TIMER_A_CAPTURECOMPARE_REGISTER_1,
-                                     TIMER_A_OUTPUTMODE_RESET_SET,
-                                     MIDDLE_ANGLE };
+Timer_A_PWMConfig servo_PWMConfig = { TIMER_A_CLOCKSOURCE_SMCLK,
+TIMER_A_CLOCKSOURCE_DIVIDER_2,
+                                      SERVO_PERIOD,
+                                      TIMER_A_CAPTURECOMPARE_REGISTER_1,
+                                      TIMER_A_OUTPUTMODE_RESET_SET,
+                                      MIDDLE_ANGLE };
 
 /*!
  * \brief This function configures the servo
@@ -40,7 +40,7 @@ Timer_A_PWMConfig servo_PWMConfig = {TIMER_A_CLOCKSOURCE_SMCLK,
 void Servo_init(void)
 {
     GPIO_setAsPeripheralModuleFunctionOutputPin(SERVO_PORT,
-                                                SERVO_PIN,
+    SERVO_PIN,
                                                 GPIO_PRIMARY_MODULE_FUNCTION);
     Timer_A_generatePWM(TIMER_A1_BASE, &servo_PWMConfig);
 }
@@ -54,7 +54,7 @@ void outputs_init(void)
 void External_LED_turnonLED(int LED)
 {
     GPIO_setOutputLowOnPin(EXTERNAL_LED_PORT, EXTERNAL_LED_ALL_PINS);
-    const int mask = LED == 0 ? 0 : 1 << LED + 3;
+    const int mask = LED == 0 ? 1 : 1 << LED + 4;
     GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, mask);
 }
 
@@ -110,12 +110,18 @@ void External_LED_turnOnHex(int value)
     case 13:
         GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b11000001);
         break;
+    case 14:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b11100000);
+        break;
+    case 15:
+        GPIO_setOutputHighOnPin(EXTERNAL_LED_PORT, 0b11100001);
+        break;
     }
 }
 
 void Servo_setAngle(int value)
 {
     int multiple = value / 910;
-    servo_PWMConfig.dutyCycle = MIN_ANGLE + multiple * TEN_DEGREES;
+    servo_PWMConfig.dutyCycle = MAX_ANGLE - multiple * TEN_DEGREES;
     Timer_A_generatePWM(TIMER_A1_BASE, &servo_PWMConfig);
 }

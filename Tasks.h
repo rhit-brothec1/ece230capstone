@@ -22,7 +22,7 @@ extern "C" {
  *
  * This function generates a random password whose length depends on the
  * difficulty. The user then presses buttons on the keypad, if the user enters
- * the password incorrectly, they lose time, if they enter it correctly, the
+ * the password incorrectly, they lose time, if they enter it correctly, they
  * complete the task.
  *
  * \param difficulty the difficulty the game is running at

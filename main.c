@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 /* Other includes */
 #include "lcd.h"
@@ -66,8 +67,6 @@ Tasks currentTask;
 void setup(void)
 {
     WDT_A_holdTimer();
-
-    srand(69); // nice
 
     inputs_init();
     outputs_init();
@@ -196,13 +195,7 @@ int main(void)
 
     /* ----- Game setup ----- */
     const int difficulty = setDifficulty();
-
-//    currentTask = Lights;
-//    while (1)
-//    {
-//        taskLights(difficulty, &digitalValue);
-//    }
-
+    srand(time(0));
 
     commandInstruction(RETURN_HOME_MASK, false);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
@@ -229,7 +222,7 @@ int main(void)
             taskLights(difficulty, &digitalValue);
             break;
         case Temp:
-//            taskTemp(difficulty, &digitalValue);
+            taskTemp(difficulty, &digitalValue);
             break;
         case Direction:
             taskDirection(difficulty, &digitalValue);
@@ -253,12 +246,13 @@ int main(void)
     Timer32_haltTimer(TIMER32_0_BASE);
     Timer_A_stopTimer(TIMER_A0_BASE);
     Timer_A_stopTimer(TIMER_A2_BASE);
+    GPIO_setOutputLowOnPin(BLINK_PORT, BLINK_PIN);
     commandInstruction(RETURN_HOME_MASK, false);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
-    long score = TIMER32_1->VALUE * (1 + difficulty * 0.1) / 3840;
-    char end[25];
-    sprintf(end, "Good job!\nSalary:$ %d", score);
-    printString(end, 25);
+    long score = TIMER32_1->VALUE * (1 + difficulty * 0.3) / 420;
+    char sal[27];
+    sprintf(sal, "Good job!\nSalary: $%d ", score);
+    printString(sal, 27);
 }
 
 /*!

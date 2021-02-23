@@ -31,7 +31,7 @@ void Blink_LED_init(void)
 void Buzzer_init(void)
 {
     GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P2,
-                                                GPIO_PIN6,
+    GPIO_PIN6,
                                                 GPIO_PRIMARY_MODULE_FUNCTION);
     // Timer_A0 PWM config for speaker, initialized to off
     const Timer_A_PWMConfig compareConfig_PWM = {
@@ -51,7 +51,7 @@ void Timer_init(void)
     Buzzer_init();
 
     Timer32_initModule(TIMER32_0_BASE, TIMER32_PRESCALER_1, TIMER32_32BIT,
-    TIMER32_PERIODIC_MODE);
+    TIMER32_FREE_RUN_MODE);
     Timer32_enableInterrupt(TIMER32_0_BASE);
     Interrupt_enableInterrupt(INT_T32_INT1);
 
@@ -77,9 +77,9 @@ void Timer_init(void)
 void TA2_0_IRQHandler(void)
 {
     Timer_A_clearCaptureCompareInterrupt(TIMER_A2_BASE,
-                                         TIMER_A_CAPTURECOMPARE_REGISTER_0);
+    TIMER_A_CAPTURECOMPARE_REGISTER_0);
     Timer_A_setCompareValue(TIMER_A0_BASE,
-                            TIMER_A_CAPTURECOMPARE_REGISTER_0,
+    TIMER_A_CAPTURECOMPARE_REGISTER_0,
                             BEEP);
     GPIO_setOutputHighOnPin(BLINK_PORT, BLINK_PIN);
 }
@@ -96,10 +96,10 @@ void TA2_N_IRQHandler(void)
 {
     Timer_A_clearInterruptFlag(TIMER_A2_BASE);
     Timer_A_setCompareValue(TIMER_A0_BASE,
-                            TIMER_A_CAPTURECOMPARE_REGISTER_0,
+    TIMER_A_CAPTURECOMPARE_REGISTER_0,
                             0);
     Timer_A_setCompareValue(TIMER_A2_BASE,
-                            TIMER_A_CAPTURECOMPARE_REGISTER_0,
+    TIMER_A_CAPTURECOMPARE_REGISTER_0,
                             Timer32_getValue(TIMER32_0_BASE) / 3840);
     GPIO_setOutputLowOnPin(BLINK_PORT, BLINK_PIN);
 }

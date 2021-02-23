@@ -62,30 +62,23 @@ void taskPassword(int difficulty)
 
     printString("Enter password:", 15);
 
-    bool complete = false;
-    while (!complete)
+    commandInstruction(SET_CURSOR_MASK | LINE2_OFFSET, false);
+    for (i = 0; i < 17; i++)
     {
-        complete = true;
-        commandInstruction(SET_CURSOR_MASK | LINE2_OFFSET, false);
-        for (i = 0; i < 17; i++)
-        {
-            printChar(' ');
-        }
-        commandInstruction(SET_CURSOR_MASK | LINE2_OFFSET, false);
-        printString(password, length);
-        for (i = length; i < 8; i++)
-            printChar(' ');
-        for (i = 0; i < length; i++)
+        printChar(' ');
+    }
+    commandInstruction(SET_CURSOR_MASK | LINE2_OFFSET, false);
+    printString(password, length);
+    for (i = length; i < 8; i++)
+        printChar(' ');
+    for (i = 0; i < length; i++)
+    {
+        while (input[i] != password[i])
         {
             input[i] = keypad_get_input();
-            printChar(input[i]);
-            if (input[i] != password[i])
-                complete = false;
         }
-        if (!complete)
-            decrementTimer(difficulty);
+        printChar(input[i]);
     }
-
 }
 
 void taskLights(int difficulty, int *digitalValue)
@@ -93,7 +86,7 @@ void taskLights(int difficulty, int *digitalValue)
     commandInstruction(RETURN_HOME_MASK, false);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
     ADC14_toggleConversionTrigger();
-    int target = 16000;
+    int target = 16000 - 300 * (3 - difficulty);
 
     printString("Turn off the\nlights", 19);
 
@@ -111,42 +104,20 @@ void taskLights(int difficulty, int *digitalValue)
 
 void taskTemp(int difficulty, int *digitalValue)
 {
-//Hold temp sensor until a threshold value is reached (relative to the initial value)
-
-//TODO Get the value of the temperature at the start of the task
+    ADC14_toggleConversionTrigger();
     commandInstruction(RETURN_HOME_MASK, false);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
-    ADC14_toggleConversionTrigger();
-    int target = rand() % 16384;
+    printString("Turn up the\nheat", 17);
 
-    while ((target < *digitalValue + 2000) && (target > *digitalValue - 2000))
-    {
-        target = rand() % 16384;
-    }
-
-    printString("Temp", 4);
-
-    char a[5];
-    sprintf(a, "%i", target);
-    printString(a, 5);
-
+    int target = *digitalValue - 350;
     while (1)
     {
-        //DONE Check for win
-        if ((*digitalValue < target + 250) && (*digitalValue > target - 250))
+        if (*digitalValue < target)
         {
-            printString("Correct!", 8);
             return;
         }
         ADC14_toggleConversionTrigger();
-        commandInstruction(SET_CURSOR_MASK | LINE2_OFFSET, false);
-        char a[5];
-        sprintf(a, "%i", *digitalValue);
-        printString(a, 5);
-        delayMilliSec(1000);
-
-        //TODO Check for FAILURE
-
+        delayMilliSec(100);
     }
 
 }
@@ -240,10 +211,9 @@ void taskDivertPower(int difficulty, int *digitalValue)
 
 void taskReaction(int difficulty)
 {
-    // TODO
     commandInstruction(RETURN_HOME_MASK, false);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
-    printString("Press button\nwhen ", 19);
+    printString("Press button\nwhen ", 18);
     const int LED = rand() % 4;
     switch (LED)
     {
@@ -251,10 +221,10 @@ void taskReaction(int difficulty)
         printString("Y LED on", 8);
         break;
     case 1:
-        printString("G LED on", 8);
+        printString("B LED on", 8);
         break;
     case 2:
-        printString("B LED on", 8);
+        printString("G LED on", 8);
         break;
     case 3:
         printString("R LED on", 8);
@@ -269,13 +239,16 @@ void taskReaction(int difficulty)
         {
             External_LED_turnonLED(LED);
             int i;
-            for (i = 0; i < 10000; i++)
+            for (i = 0; i < 50000; i++)
             {
                 if (switch_pressed(5))
+                {
+                    External_LED_turnOff();
                     return;
+                }
             }
             External_LED_turnOff();
-            for (i = 0; i < 10000; i++)
+            for (i = 0; i < 30000; i++)
             {
                 if (switch_pressed(5))
                     decrementTimer(difficulty);
@@ -290,18 +263,21 @@ void taskReaction(int difficulty)
             int current = rand() % 2 == 1 ? other : LED;
             External_LED_turnonLED(current);
             int i;
-            for (i = 0; i < 5000; i++)
+            for (i = 0; i < 30000; i++)
             {
                 if (switch_pressed(5))
                 {
                     if (current == LED)
+                    {
+                        External_LED_turnOff();
                         return;
+                    }
                     else
                         decrementTimer(difficulty);
                 }
             }
             External_LED_turnOff();
-            for (i = 0; i < 5000; i++)
+            for (i = 0; i < 20000; i++)
             {
                 if (switch_pressed(5))
                     decrementTimer(difficulty);
@@ -315,26 +291,27 @@ void taskReaction(int difficulty)
             int current = rand() % 4;
             External_LED_turnonLED(current);
             int i;
-            for (i = 0; i < 5000; i++)
+            for (i = 0; i < 25000; i++)
             {
                 if (switch_pressed(5))
                 {
                     if (current == LED)
+                    {
+                        External_LED_turnOff();
                         return;
+                    }
                     else
                         decrementTimer(difficulty);
                 }
             }
             External_LED_turnOff();
-            for (i = 0; i < 5000; i++)
+            for (i = 0; i < 10000; i++)
             {
                 if (switch_pressed(5))
                     decrementTimer(difficulty);
             }
-            break;
         }
     }
-    External_LED_turnOff();
 }
 
 void taskBinary(int difficulty)
