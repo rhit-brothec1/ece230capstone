@@ -4,7 +4,7 @@
  * Description: Helper file for handling outputs. Also includes more in-depth
  *              initialization
  *
- *   Edited on: Feb 16, 2021
+ *   Edited on: Feb 22, 2021
  *      Author: Cooper Brotherton and Jesus Capo
  */
 #include <outputs.h>
@@ -24,7 +24,7 @@ void External_LED_init(void)
 }
 
 Timer_A_PWMConfig servo_PWMConfig = { TIMER_A_CLOCKSOURCE_SMCLK,
-TIMER_A_CLOCKSOURCE_DIVIDER_2,
+                                      TIMER_A_CLOCKSOURCE_DIVIDER_2,
                                       SERVO_PERIOD,
                                       TIMER_A_CAPTURECOMPARE_REGISTER_1,
                                       TIMER_A_OUTPUTMODE_RESET_SET,
@@ -40,7 +40,7 @@ TIMER_A_CLOCKSOURCE_DIVIDER_2,
 void Servo_init(void)
 {
     GPIO_setAsPeripheralModuleFunctionOutputPin(SERVO_PORT,
-    SERVO_PIN,
+                                                SERVO_PIN,
                                                 GPIO_PRIMARY_MODULE_FUNCTION);
     Timer_A_generatePWM(TIMER_A1_BASE, &servo_PWMConfig);
 }

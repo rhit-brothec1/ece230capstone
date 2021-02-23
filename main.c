@@ -1,6 +1,6 @@
 /*
  * Author:      Cooper Brotherton and Jesus Capo
- * Date:        February 19, 2021
+ * Date:        February 23, 2021
  * Libraries:   GPIO, Timer32, Timer A, ADC14, from DriverLib
  */
 /******************************************************************************
@@ -250,9 +250,9 @@ int main(void)
     commandInstruction(RETURN_HOME_MASK, false);
     commandInstruction(CLEAR_DISPLAY_MASK, false);
     long score = TIMER32_1->VALUE * (1 + difficulty * 0.3) / 420;
-    char sal[27];
-    sprintf(sal, "Good job!\nSalary: $%d ", score);
-    printString(sal, 27);
+    char sal[26];
+    sprintf(sal, "Good job!\nSalary: $%6d", score);
+    printString(sal, 26);
 }
 
 /*!
@@ -322,6 +322,5 @@ void T32_INT1_IRQHandler(void)
     commandInstruction(RETURN_HOME_MASK, false);
     printString("You're fired!", 13);
     GPIO_setOutputHighOnPin(BLINK_PORT, BLINK_PIN);
-    while (1)
-        ;
+    abort();
 }
